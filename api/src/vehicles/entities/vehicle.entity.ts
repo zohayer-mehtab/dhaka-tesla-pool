@@ -16,6 +16,9 @@ export class Vehicle {
   @Column({ type: 'int' })
   capacity: number;
 
+  @Column({ type: 'varchar', length: 255, name: 'label' })
+  label: string;
+
   @Column({ type: 'boolean', name: 'is_online', default: false })
   isOnline: boolean;
 
