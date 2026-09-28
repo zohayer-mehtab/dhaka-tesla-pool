@@ -1,5 +1,6 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
-import { EntityManager } from 'typeorm';
+import { InjectRepository } from '@nestjs/typeorm';
+import { EntityManager, Repository } from 'typeorm';
 import { DhakaZone, RideRequestStatus } from '../common/enums';
 import { RideRequest } from './entities/ride-request.entity';
 import { FARE_CONFIG, distanceMetres } from './fare.config';
@@ -13,6 +14,38 @@ export interface FareBreakdown {
 
 @Injectable()
 export class RideRequestsService {
+  constructor(
+    @InjectRepository(RideRequest)
+    private readonly rideRequestRepo: Repository<RideRequest>,
+  ) {}
+
+  async create(passengerId: string, pickupZone: string, destZone: string, seats: number): Promise<RideRequest> {
+    const { totalPoysha } = this.calculateFare(
+      pickupZone as DhakaZone,
+      destZone as DhakaZone,
+      seats,
+      false, // Not pooled upon initial request
+    );
+
+    const ride = this.rideRequestRepo.create({
+      passengerId,
+      pickupZone,
+      destZone,
+      seatsRequested: seats,
+      status: RideRequestStatus.REQUESTED,
+      fareAmountPoysha: totalPoysha,
+    });
+
+    return this.rideRequestRepo.save(ride);
+  }
+
+  async updateStatus(id: string, status: RideRequestStatus): Promise<RideRequest> {
+    await this.rideRequestRepo.update(id, { status });
+    const updated = await this.rideRequestRepo.findOne({ where: { id } });
+    if (!updated) throw new BadRequestException('Ride request not found after update');
+    return updated;
+  }
+
   calculateFare(
     pickup: DhakaZone,
     dest: DhakaZone,
