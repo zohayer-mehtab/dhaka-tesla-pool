@@ -4,10 +4,12 @@ import {
   NotFoundException,
   UnprocessableEntityException,
 } from '@nestjs/common';
-import { DataSource } from 'typeorm';
-import { RideRequestStatus } from '../common/enums';
+import { DataSource, In } from 'typeorm';
+import { PoolStatus, RideRequestStatus } from '../common/enums';
 import { RideRequest } from '../ride-requests/entities/ride-request.entity';
 import { RideRequestsService } from '../ride-requests/ride-requests.service';
+import { Vehicle } from '../vehicles/entities/vehicle.entity';
+import { Pool } from './entities/pool.entity';
 
 @Injectable()
 export class PoolsService {
@@ -114,6 +116,41 @@ export class PoolsService {
         poolId,
         seatsTaken,
       };
+    });
+  }
+
+  async createPool(driverId: string): Promise<Pool> {
+    return this.dataSource.transaction(async (manager) => {
+      const vehicle = await manager.findOne(Vehicle, { where: { driverId } });
+      if (!vehicle) {
+        throw new NotFoundException('No vehicle registered to this driver');
+      }
+
+      if (!vehicle.isOnline) {
+        throw new ConflictException('Vehicle must be online to start a pool');
+      }
+
+      const existingPool = await manager.findOne(Pool, {
+        where: { 
+          vehicleId: vehicle.id, 
+          status: In([PoolStatus.OPEN, PoolStatus.LOCKED, PoolStatus.IN_PROGRESS]) 
+        }
+      });
+
+      // REFACTOR: If a pool already exists, return it to rehydrate the frontend 
+      // instead of throwing a 409 Conflict. This self-heals local storage loss.
+      if (existingPool) {
+        return existingPool;
+      }
+
+      const pool = manager.create(Pool, {
+        vehicleId: vehicle.id,
+        status: PoolStatus.OPEN,
+        seatsCapacity: vehicle.capacity,
+        seatsTaken: 0,
+      });
+
+      return manager.save(pool);
     });
   }
 }
