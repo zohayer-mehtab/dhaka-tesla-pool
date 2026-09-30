@@ -130,18 +130,12 @@ export class PoolsService {
         throw new ConflictException('Vehicle must be online to start a pool');
       }
 
-      const existingPool = await manager.findOne(Pool, {
-        where: { 
-          vehicleId: vehicle.id, 
-          status: In([PoolStatus.OPEN, PoolStatus.LOCKED, PoolStatus.IN_PROGRESS]) 
-        }
-      });
-
-      // REFACTOR: If a pool already exists, return it to rehydrate the frontend 
-      // instead of throwing a 409 Conflict. This self-heals local storage loss.
-      if (existingPool) {
-        return existingPool;
-      }
+      // Close/Complete any lingering active pools for this vehicle so a new session can start cleanly
+      await manager.update(
+        Pool,
+        { vehicleId: vehicle.id, status: In([PoolStatus.OPEN, PoolStatus.LOCKED, PoolStatus.IN_PROGRESS]) },
+        { status: PoolStatus.COMPLETED }
+      );
 
       const pool = manager.create(Pool, {
         vehicleId: vehicle.id,
