@@ -6,8 +6,13 @@ Ride-pooling MVP for Dhaka. Passengers request rides between city zones; a drive
 
 | | |
 |---|---|
+<<<<<<< Updated upstream
 | **Demo video (≤6 min)** | `<LOOM_URL>` |
 | **Live deployment** | `<DEPLOY_URL>` *(or see [Deployment](#deployment) for the documented constraint + reproducible Docker path)* |
+=======
+| **Demo video (≤6 min)** | `https://www.loom.com/share/e1f39353124341a58bcc55f72c4d2b2d` |
+| **Live deployment** | *(see [Deployment](#deployment) for the documented constraint + reproducible Docker path)* |
+>>>>>>> Stashed changes
 | **Release shown in video** | `release/v1.0.0` |
 
 ---
@@ -35,8 +40,12 @@ Ride-pooling MVP for Dhaka. Passengers request rides between city zones; a drive
 20. [Key Decisions & Trade-offs](#20-key-decisions--trade-offs)
 21. [Known Limitations](#21-known-limitations)
 22. [Next Improvements](#22-next-improvements)
+<<<<<<< Updated upstream
 23. [Bonus: If Oi Tesla Goes Viral](#23-bonus-if-oi-tesla-goes-viral)
 24. [AI Usage](#24-ai-usage)
+=======
+23. [AI Usage](#23-ai-usage)
+>>>>>>> Stashed changes
 
 ---
 
@@ -72,11 +81,17 @@ Real routing is out of scope; geography is a fixed zone graph (§7).
 
 ## 3. Screenshots
 
+<<<<<<< Updated upstream
 | Passenger request | Driver pool view | Pooled fare / status |
 |---|---|---|
 | `docs/img/passenger-request.png` | `docs/img/driver-pool.png` | `docs/img/fare-status.png` |
 
 *(Replace with real captures / GIFs before submission.)*
+=======
+| Passenger request | Driver pool view | Pooled fare / status | Request details |
+|---|---|---|---|
+| ![Passenger Dashboard](docs/img/passenger-dashboard.png) | ![Driver Pool](docs/img/driver-pool.png) | ![Passenger Ride History](docs/img/passenger-ride-request-history.png) | ![Passenger Request](docs/img/passenger-request.png) |
+>>>>>>> Stashed changes
 
 ---
 
@@ -319,10 +334,17 @@ Members are then read and mutated while the pool row is held, so a concurrent ca
 ### Why this combination
 | Option | Verdict |
 |---|---|
+<<<<<<< Updated upstream
 | Application mutex / in-memory counter | ❌ breaks with >1 API replica |
 | Optimistic `version` column + retry | ✔ valid, but needs retry loops; CAS `UPDATE` gives the same guarantee with no retry |
 | `SERIALIZABLE` isolation | ✔ correct but aborts under contention and pushes retry logic to callers |
 | Redis distributed lock | ❌ extra infra, adds a second source of truth; the DB already is the source of truth |
+=======
+| |
+| Optimistic `version` column + retry | ✔ valid, but needs retry loops; CAS `UPDATE` gives the same guarantee with no retry |
+| `SERIALIZABLE` isolation | ✔ correct but aborts under contention and pushes retry logic to callers |
+|
+>>>>>>> Stashed changes
 | **CAS `UPDATE` + CHECK + `FOR UPDATE` on multi-row ops** | ✅ chosen |
 
 ### At larger scale
@@ -345,7 +367,10 @@ Shard pools by `vehicle_id`/geohash so contention is per-vehicle (already the ca
 | Validation | **class-validator / class-transformer** | Zod | Native `ValidationPipe`, DTO decorators, whitelist mode strips unknown fields. | — |
 | Tests | **Jest + Supertest** | Vitest, Mocha | Nest default; supports real-DB e2e tests for concurrency. | — |
 | Orchestration | **Docker Compose** | Bare scripts, k8s | Single-command reproducible environment; k8s would be unjustified. | Multi-node production → managed container platform/k8s. |
+<<<<<<< Updated upstream
 | Hosting | `<fill: e.g. Vercel (web) + Render/Fly free tier (api) + Neon/Supabase free Postgres>` | Paid VPS | Free tier required by brief. | Traffic/SLA needs outgrow free tier. |
+=======
+>>>>>>> Stashed changes
 
 ---
 
