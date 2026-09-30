@@ -1,4 +1,4 @@
-import { Controller, Post, Param, UseGuards, SetMetadata } from '@nestjs/common';
+import { Controller, Post, Param, UseGuards, SetMetadata, Request } from '@nestjs/common';
 import { PoolsService } from './pools.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { RolesGuard } from '../auth/roles.guard';
@@ -17,5 +17,11 @@ export class PoolsController {
   ) {
     
     return this.poolsService.matchPassengerToPool(rideRequestId, poolId);
+  }
+
+  @Post()
+  @SetMetadata('roles', [UserRole.DRIVER])
+  async createPool(@Request() req: any) {
+    return this.poolsService.createPool(req.user.id);
   }
 }

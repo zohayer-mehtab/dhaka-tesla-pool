@@ -17,6 +17,7 @@ import { AuthModule } from './auth/auth.module';
     VehiclesModule,
     RideRequestsModule,
     AuthModule
+    // Remove RideStatusHistoryModule from here
   ],
   controllers: [AppController],
   providers: [AppService],

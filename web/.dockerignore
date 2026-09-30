@@ -1,5 +1,6 @@
 node_modules
 .next
-.git
-.gitignore
-npm-debug.log
+out
+Dockerfile
+.DS_Store
+*.local

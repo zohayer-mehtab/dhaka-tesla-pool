@@ -8,7 +8,6 @@
   "scripts": {
     "build": "nest build",
     "dev": "nest start --watch",
-    "seed": "ts-node src/database/seeder.ts",
     "seed:prod": "node dist/database/seeder.js",
     "typeorm": "typeorm-ts-node-commonjs",
     "deploy": "nest deploy",
@@ -23,7 +22,9 @@
     "test:cov": "node --experimental-vm-modules ./node_modules/jest/bin/jest.js --coverage",
     "test:debug": "node --inspect-brk --experimental-vm-modules -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "node --experimental-vm-modules ./node_modules/jest/bin/jest.js --config ./test/jest-e2e.json",
-    "migration:run": "echo 'No migrations configured yet'"
+    "migration:run": "typeorm migration:run -d dist/data-source.js",
+    "migration:generate": "typeorm-ts-node-commonjs migration:generate -d src/data-source.ts",
+    "seed": "node dist/database/seeder.js"
   },
   "dependencies": {
     "@nestjs/common": "^12.0.1",
