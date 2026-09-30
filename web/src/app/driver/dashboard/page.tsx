@@ -87,6 +87,9 @@ export default function DriverDashboardPage() {
     [RideRequestStatus.MATCHED, RideRequestStatus.DRIVER_ARRIVED, RideRequestStatus.STARTED].includes(r.status)
   );
 
+  // Calculate physically occupied seats
+  const currentSeatsTaken = activePoolRides.reduce((sum, req) => sum + req.seatsRequested, 0);
+
   return (
     <div className="p-6 space-y-6">
       <div className="bg-gray-50 p-6 rounded-3xl border border-gray-100">
@@ -117,15 +120,23 @@ export default function DriverDashboardPage() {
             {incomingRequests.length === 0 ? (
               <p className="text-gray-400 text-sm">No pending requests</p>
             ) : (
-              incomingRequests.map((req) => (
-                <div key={req.id} className="bg-gray-50 p-4 rounded-2xl">
-                  <div className="flex justify-between font-semibold mb-3 text-sm">
-                    <span>{req.pickupZone} → {req.destZone}</span>
-                    <span className="text-[#0d9488]">{req.seatsRequested} Seat(s)</span>
+              incomingRequests.map((req) => {
+                const canAccept = activePool && ((currentSeatsTaken + req.seatsRequested) <= activePool.seatsCapacity);
+
+                return (
+                  <div key={req.id} className="bg-gray-50 p-4 rounded-2xl">
+                    <div className="flex justify-between font-semibold mb-3 text-sm">
+                      <span>{req.pickupZone} → {req.destZone}</span>
+                      <span className="text-[#0d9488]">{req.seatsRequested} Seat(s)</span>
+                    </div>
+                    {canAccept ? (
+                      <button onClick={() => handleMatch(req.id)} className="btn-primary py-3 text-sm">Accept Passenger</button>
+                    ) : (
+                      <div className="text-xs font-bold text-red-500 text-center py-2 bg-red-50 rounded-xl">EXCEEDS CAPACITY</div>
+                    )}
                   </div>
-                  <button onClick={() => handleMatch(req.id)} className="btn-primary py-3 text-sm">Accept Passenger</button>
-                </div>
-              ))
+                );
+              })
             )}
           </div>
 
